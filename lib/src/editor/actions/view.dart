@@ -40,14 +40,35 @@ final class EditorActionsState extends State<EditorActionsView> {
     if (node!.isDocumentRoot) {
       return ListView(
         children: [
+          // ListTile(
+          //   leading: const Icon(Icons.edit),
+          //   title: const Text('Edit'),
+          //   onTap: () {},
+          // ),
+          Card(
+            child: ExpansionTile(
+              title: const Text('Edit'),
+              subtitle: const Text('Edit the text'),
+              controlAffinity: ListTileControlAffinity.trailing,
+              children: <Widget>[
+                ListTile(
+                  title: TextField(),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.send),
+                    onPressed: () {},
+                  ),
+                ),
+              ],
+            ),
+          ),
           ListTile(
-            leading: const Icon(Icons.edit),
-            title: const Text('Edit'),
+            leading: const Icon(Icons.table_chart),
+            title: const Text('Build a Frame'),
             onTap: () {},
           ),
           ListTile(
-            leading: const Icon(Icons.description),
-            title: const Text('Build a Frame'),
+            leading: const Icon(Icons.publish),
+            title: const Text('Export as .txt'),
             onTap: () {},
           ),
         ],
@@ -74,6 +95,11 @@ final class EditorActionsState extends State<EditorActionsView> {
         ListTile(
           leading: const Icon(Icons.flip_to_front),
           title: const Text('Reform'),
+          onTap: () {},
+        ),
+        ListTile(
+          leading: const Icon(Icons.check),
+          title: const Text('Complete'),
           onTap: () {},
         ),
       ],
