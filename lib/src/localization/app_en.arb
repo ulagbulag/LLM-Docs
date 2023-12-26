@@ -1,5 +1,9 @@
 {
-  "appTitle": "llmdocs",
+  "actionNew": "Create a new document",
+  "@actionNew": {
+    "description": "The action name of creating new document"
+  },
+  "appTitle": "LLM-Docs",
   "@appTitle": {
     "description": "The title of the application"
   }
