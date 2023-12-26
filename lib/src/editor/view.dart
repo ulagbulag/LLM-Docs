@@ -31,7 +31,7 @@ final class EditorState extends State<EditorView> {
           IconButton(
             icon: const Icon(Icons.upload),
             tooltip: 'Load',
-            onPressed: controller.loadByPrompt,
+            onPressed: () => controller.loadByPrompt(context),
           ),
           IconButton(
             icon: const Icon(Icons.save),

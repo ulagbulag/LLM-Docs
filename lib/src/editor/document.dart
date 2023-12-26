@@ -1,5 +1,6 @@
+import 'package:animated_tree_view/animated_tree_view.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_tree/flutter_tree.dart';
+import 'package:llmdocs/src/editor/node.dart';
 
 import 'controller.dart';
 
@@ -19,33 +20,44 @@ final class EditorDocumentView extends StatefulWidget {
 }
 
 final class EditorDocumentState extends State<EditorDocumentView> {
-  late List<TreeNodeData> nodes;
+  late EditorNode rootNode;
 
   @override
   void initState() {
     super.initState();
 
-    nodes = widget.controller.nodes;
+    rootNode = widget.controller.rootNode;
     widget.controller.addListener(() {
       setState(() {
-        nodes = widget.controller.nodes;
+        rootNode = widget.controller.rootNode;
       });
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return TreeView(
-      append: widget.controller.addNode,
-      data: nodes,
-      onCheck: widget.controller.checkNode,
-      onCollapse: widget.controller.collpaseNode,
-      onExpand: widget.controller.expandNode,
-      onTap: widget.controller.focusNode,
-      onRemove: widget.controller.removeNode,
-      showActions: true,
-      showCheckBox: true,
-      showFilter: true,
+    return TreeView.indexTyped<void, EditorNode>(
+      tree: rootNode,
+      builder: (context, item) => ListTile(
+        title: Text(item.title),
+      ),
+      expansionBehavior: ExpansionBehavior.snapToTop,
+      focusToNewNode: true,
+      indentation: const Indentation(
+        style: IndentStyle.squareJoint,
+      ),
+      onItemTap: widget.controller.focusNode,
+      showRootNode: false,
+      // append: widget.controller.addNode,
+      // data: nodes,
+      // onCheck: widget.controller.checkNode,
+      // onCollapse: widget.controller.collpaseNode,
+      // onExpand: widget.controller.expandNode,
+      // onTap: widget.controller.focusNode,
+      // onRemove: widget.controller.removeNode,
+      // showActions: true,
+      // showCheckBox: true,
+      // showFilter: true,
     );
   }
 }

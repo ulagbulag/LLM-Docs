@@ -37,6 +37,16 @@ final class EditorActionsState extends State<EditorActionsView> {
       return const SizedBox();
     }
 
+    if (node!.isDocumentRoot) {
+      return ListView(
+        children: const [
+          ListTile(
+            title: Text('Describe123'),
+          ),
+        ],
+      );
+    }
+
     return ListView(
       children: const [
         ListTile(

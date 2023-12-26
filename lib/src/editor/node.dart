@@ -1,32 +1,34 @@
-import 'package:flutter_tree/flutter_tree.dart';
+import 'package:animated_tree_view/animated_tree_view.dart';
 
-final class EditorNode extends TreeNodeData {
+final class EditorNode extends IndexedTreeNode<void> {
   EditorNode({
     this.text = '',
-    super.title = '',
-    required super.children,
     required this.parents,
-    super.checked = false,
+    List<EditorNode>? children,
+    this.checked = false,
     required this.generated,
-    super.expaned = true,
+    this.expaned = true,
   }) {
+    if (children != null) {
+      addAll(children);
+    }
+
     _updateTitle();
   }
 
   String text;
+  bool checked;
+  bool expaned;
   final bool generated;
 
   List<int> parents;
+  String title = '';
 
-  bool get isRoot => parents.isEmpty;
+  bool get isDocumentRoot => parents.isEmpty;
 
   int get nodeIndex => parents.last;
 
   String _generateTitle() {
-    if (isRoot) {
-      return text;
-    }
-
     String title = '';
     for (final parent in parents) {
       title += '${parent + 1}. ';
@@ -56,17 +58,20 @@ final class EditorNode extends TreeNodeData {
     }
   }
 
-  factory EditorNode.fromJson(Map<String, dynamic> json, List<int>? parents) {
+  factory EditorNode.fromJson(Map<String, dynamic> json, {List<int>? parents}) {
     final parentsList = parents ?? [];
     return EditorNode(
       text: json['text'] ?? '',
       parents: parentsList,
-      children: json['children'].indexed.map(
-            (index, json) => EditorNode.fromJson(
-              json,
-              parentsList.toList()..add(index),
+      children: List<dynamic>.of(json['children'])
+          .indexed
+          .map(
+            (tuple) => EditorNode.fromJson(
+              tuple.$2,
+              parents: parentsList.toList()..add(tuple.$1),
             ),
-          ),
+          )
+          .toList(),
       checked: json['checked'] == true,
       expaned: json['expaned'] == true,
       generated: json['generated'] == true,
@@ -83,4 +88,18 @@ final class EditorNode extends TreeNodeData {
       'generated': generated,
     };
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is EditorNode &&
+          runtimeType == other.runtimeType &&
+          text == other.text &&
+          parents == other.parents &&
+          checked == other.checked &&
+          generated == other.generated;
+
+  @override
+  int get hashCode =>
+      text.hashCode ^ parents.hashCode ^ checked.hashCode ^ generated.hashCode;
 }
