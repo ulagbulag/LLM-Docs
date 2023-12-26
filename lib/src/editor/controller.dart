@@ -48,14 +48,14 @@ class EditorController extends ChangeNotifier {
             jsonDecode(await file.readAsString());
         for (final fileJson in fileJsonList) {
           final fileNode = EditorNode.fromJson(fileJson);
-          nodes.add(fileNode);
+          rootNode.add(fileNode);
           createdDocuments++;
         }
       }
 
       if (createdDocuments > 0) {
         if (reset) {
-          nodes.removeRange(0, oldNodes);
+          rootNode.removeAll(nodes.sublist(0, oldNodes));
         }
 
         if (context.mounted) {
