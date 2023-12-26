@@ -39,18 +39,42 @@ final class EditorActionsState extends State<EditorActionsView> {
 
     if (node!.isDocumentRoot) {
       return ListView(
-        children: const [
+        children: [
           ListTile(
-            title: Text('Describe123'),
+            leading: const Icon(Icons.edit),
+            title: const Text('Edit'),
+            onTap: () {},
+          ),
+          ListTile(
+            leading: const Icon(Icons.description),
+            title: const Text('Build a Frame'),
+            onTap: () {},
           ),
         ],
       );
     }
 
     return ListView(
-      children: const [
+      children: [
         ListTile(
-          title: Text('Describe'),
+          leading: const Icon(Icons.edit),
+          title: const Text('Edit'),
+          onTap: () {},
+        ),
+        ListTile(
+          leading: const Icon(Icons.description),
+          title: const Text('Describe'),
+          onTap: () {},
+        ),
+        ListTile(
+          leading: const Icon(Icons.expand),
+          title: const Text('Expand'),
+          onTap: () {},
+        ),
+        ListTile(
+          leading: const Icon(Icons.flip_to_front),
+          title: const Text('Reform'),
+          onTap: () {},
         ),
       ],
     );
