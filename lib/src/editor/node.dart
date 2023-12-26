@@ -1,4 +1,5 @@
 import 'package:animated_tree_view/animated_tree_view.dart';
+import 'package:flutter/material.dart';
 
 final class EditorNode extends IndexedTreeNode<void> {
   EditorNode({
@@ -6,56 +7,109 @@ final class EditorNode extends IndexedTreeNode<void> {
     required this.parents,
     List<EditorNode>? children,
     this.checked = false,
-    required this.generated,
-    this.expaned = true,
+    required this.metadata,
   }) {
     if (children != null) {
       addAll(children);
     }
 
-    _updateTitle();
+    _updateState();
   }
 
-  String text;
   bool checked;
-  bool expaned;
-  final bool generated;
+  String text;
+  EditorNodeMetadata metadata;
 
   List<int> parents;
-  String title = '';
+  final EditorNodeState _state = EditorNodeState();
 
   bool get isDocumentRoot => parents.isEmpty;
-
   int get nodeIndex => parents.last;
 
-  String _generateTitle() {
-    String title = '';
-    for (final parent in parents) {
-      title += '${parent + 1}. ';
+  EditorNodeState get state => _state;
+
+  EditorNode addEmpty() {
+    final parents = this.parents.toList();
+    if (!isRoot) {
+      parents.add(children.length);
     }
-    title += text;
-    return title;
+
+    final child = EditorNode(
+      parents: parents,
+      children: [],
+      checked: false,
+      metadata: EditorNodeMetadata(),
+    );
+    add(child);
+    return child;
   }
 
-  void _updateTitle() {
-    title = _generateTitle();
+  void check(EditorNode node, {bool checked = true}) {
+    node.checked = checked;
   }
 
-  void updateParent(
+  void focus({bool focused = true}) {
+    state.focused = focused;
+  }
+
+  bool tryDelete() {
+    if (isRoot) {
+      return false;
+    }
+
+    final EditorNode parent = this.parent! as EditorNode;
+    if (parent.isRoot && parent.children.length == 1) {
+      return false;
+    }
+
+    super.delete();
+    if (!parent.isRoot) {
+      for (final (index, child)
+          in parent.children.whereType<EditorNode>().indexed) {
+        child._updateParentIndex(index);
+      }
+    }
+    return true;
+  }
+
+  String _generateTitle() {
+    String value = '';
+    for (final parent in parents) {
+      value += '${parent + 1}. ';
+    }
+    value += text;
+    return value;
+  }
+
+  String _generateSubtitle() {
+    String value = '';
+    for (final parent in parents) {
+      value += '${parent + 1}. ';
+    }
+    value += text;
+    return value;
+  }
+
+  void _updateParentIndex(
     int value, {
     int? position,
   }) {
     final positionValue = position ?? parents.length - 1;
     parents[positionValue] = value;
 
-    _updateTitle();
+    _updateState();
 
     for (final child in children.whereType<EditorNode>()) {
-      child.updateParent(
+      child._updateParentIndex(
         value,
         position: positionValue,
       );
     }
+  }
+
+  void _updateState() {
+    _state.title = _generateTitle();
+    _state.subtitle = _generateSubtitle();
   }
 
   factory EditorNode.fromJson(Map<String, dynamic> json, {List<int>? parents}) {
@@ -73,8 +127,7 @@ final class EditorNode extends IndexedTreeNode<void> {
           )
           .toList(),
       checked: json['checked'] == true,
-      expaned: json['expaned'] == true,
-      generated: json['generated'] == true,
+      metadata: EditorNodeMetadata.fromJson(json['metadata']),
     );
   }
 
@@ -84,8 +137,7 @@ final class EditorNode extends IndexedTreeNode<void> {
       'children':
           children.whereType<EditorNode>().map((e) => e.toJson()).toList(),
       'checked': checked,
-      'expaned': expaned,
-      'generated': generated,
+      'metadata': metadata.toJson(),
     };
   }
 
@@ -96,10 +148,42 @@ final class EditorNode extends IndexedTreeNode<void> {
           runtimeType == other.runtimeType &&
           text == other.text &&
           parents == other.parents &&
-          checked == other.checked &&
-          generated == other.generated;
+          checked == other.checked;
 
   @override
-  int get hashCode =>
-      text.hashCode ^ parents.hashCode ^ checked.hashCode ^ generated.hashCode;
+  int get hashCode => text.hashCode ^ parents.hashCode ^ checked.hashCode;
+}
+
+final class EditorNodeMetadata {
+  EditorNodeMetadata({
+    this.generated = false,
+  });
+
+  final bool generated;
+
+  factory EditorNodeMetadata.fromJson(Map<String, dynamic> json) {
+    return EditorNodeMetadata(
+      generated: json['generated'] == true,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'generated': generated,
+    };
+  }
+}
+
+final class EditorNodeState extends IndexedTreeNode<void> {
+  EditorNodeState({
+    this.title = '',
+    this.subtitle = '',
+    this.focused = false,
+  });
+
+  Widget? leading;
+  String title;
+  String subtitle;
+
+  bool focused;
 }

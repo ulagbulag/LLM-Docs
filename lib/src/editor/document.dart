@@ -39,25 +39,38 @@ final class EditorDocumentState extends State<EditorDocumentView> {
     return TreeView.indexTyped<void, EditorNode>(
       tree: rootNode,
       builder: (context, item) => ListTile(
-        title: Text(item.title),
+        leading: item.state.leading,
+        title: Text(item.state.title),
+        subtitle: Text(item.state.subtitle),
+        onTap: () => widget.controller.focusNode(item),
+        onFocusChange: (focused) => widget.controller.focusNode(
+          item,
+          focused: focused,
+        ),
+        textColor: item.state.focused ? Colors.white : null,
+        tileColor: item.state.focused ? Colors.orange : null,
+        trailing: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.end,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.add),
+              onPressed: () => widget.controller.addNode(item),
+            ),
+            IconButton(
+              icon: const Icon(Icons.remove),
+              onPressed: () => widget.controller.removeNode(item),
+            ),
+          ],
+        ),
       ),
       expansionBehavior: ExpansionBehavior.snapToTop,
       focusToNewNode: true,
       indentation: const Indentation(
         style: IndentStyle.squareJoint,
       ),
-      onItemTap: widget.controller.focusNode,
       showRootNode: false,
-      // append: widget.controller.addNode,
-      // data: nodes,
-      // onCheck: widget.controller.checkNode,
-      // onCollapse: widget.controller.collpaseNode,
-      // onExpand: widget.controller.expandNode,
-      // onTap: widget.controller.focusNode,
-      // onRemove: widget.controller.removeNode,
-      // showActions: true,
-      // showCheckBox: true,
-      // showFilter: true,
     );
   }
 }

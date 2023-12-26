@@ -14,13 +14,13 @@ class EditorController extends ChangeNotifier {
     parents: [],
     children: [
       EditorNode(
+        text: 'hello world',
         parents: [],
         children: [],
-        text: 'hello world',
-        generated: true,
+        metadata: EditorNodeMetadata(),
       ),
     ],
-    generated: false,
+    metadata: EditorNodeMetadata(),
   );
 
   List<IndexedNode> get nodes => rootNode.children;
@@ -43,6 +43,7 @@ class EditorController extends ChangeNotifier {
 
       int createdDocuments = 0;
       for (final file in files) {
+        // FIXME: error handling
         final List<dynamic> fileJsonList =
             jsonDecode(await file.readAsString());
         for (final fileJson in fileJsonList) {
@@ -69,11 +70,17 @@ class EditorController extends ChangeNotifier {
   }
 
   Future<void> save(BuildContext context) async {
+    const encoder = JsonEncoder.withIndent('  ');
+    final json = encoder
+        .convert(nodes.whereType<EditorNode>().map((e) => e.toJson()).toList());
+    final bytes = utf8.encode(json);
+
     final now = DateTime.now();
+    final name =
+        'document-${now.toUtc().toIso8601String().replaceAll(':', '-')}';
     final path = await FileSaver.instance.saveFile(
-      name: 'document-${now.toUtc().toIso8601String()}',
-      bytes: utf8.encode(jsonEncode(
-          nodes.whereType<EditorNode>().map((e) => e.toJson()).toList())),
+      name: name,
+      bytes: bytes,
       ext: '.json',
       mimeType: MimeType.json,
     );
@@ -87,44 +94,39 @@ class EditorController extends ChangeNotifier {
   }
 
   EditorNode addNode(EditorNode parent) {
-    final parents = parent.parents.toList();
-    if (!parent.isRoot) {
-      parents.add(parent.children.length);
+    final child = parent.addEmpty();
+    notifyListeners();
+    return child;
+  }
+
+  void focusNode(
+    EditorNode node, {
+    bool? focused,
+    bool force = false,
+  }) {
+    if (selectedNode != null) {
+      selectedNode!.focus(focused: false);
     }
 
-    return EditorNode(
-      parents: parents,
-      children: [],
-      checked: false,
-      generated: true,
-    );
+    final value = focused ?? !node.state.focused;
+    node.focus(focused: value);
+
+    if (value) {
+      selectedNode = node;
+      notifyListeners();
+    } else if (force || selectedNode == node) {
+      selectedNode = null;
+      notifyListeners();
+    }
   }
 
-  void checkNode(EditorNode node, bool checked) {
-    node.checked = checked;
-  }
-
-  void expandNode(EditorNode node, bool expaned) {
-    node.expaned = expaned;
-  }
-
-  void focusNode(EditorNode node) {
-    selectedNode = node;
-    notifyListeners();
-  }
-
-  void removeNode(
-    EditorNode node,
-  ) {
-    if (node.isDocumentRoot) {
-      if (nodes.length == 1) {
-        return;
-      }
-    } else if (!node.isDocumentRoot) {
-      for (final (index, child)
-          in node.parent!.children.whereType<EditorNode>().indexed) {
-        child.updateParent(index);
-      }
+  void removeNode(EditorNode node) {
+    if (node.tryDelete()) {
+      focusNode(
+        node,
+        focused: false,
+        force: true,
+      );
       notifyListeners();
     }
   }
