@@ -9,19 +9,12 @@ import 'package:flutter/material.dart';
 import 'node.dart';
 
 class EditorController extends ChangeNotifier {
-  EditorNode rootNode = EditorNode(
-    text: '/',
-    parents: [],
-    children: [
-      EditorNode(
-        text: 'hello world',
-        parents: [],
-        children: [],
-        metadata: EditorNodeMetadata(),
-      ),
-    ],
-    metadata: EditorNodeMetadata(),
-  );
+  EditorNode rootNode = EditorNode.root()
+    ..add(EditorNode(
+      text: 'hello world',
+      parents: [],
+      metadata: EditorNodeMetadata(),
+    ));
 
   List<IndexedNode> get nodes => rootNode.children;
 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 final class EditorNode extends IndexedTreeNode<void> {
   EditorNode({
+    super.key,
     this.text = '',
     required this.parents,
     List<EditorNode>? children,
@@ -15,6 +16,15 @@ final class EditorNode extends IndexedTreeNode<void> {
 
     _updateState();
   }
+
+  factory EditorNode.root() => EditorNode(
+        key: INode.ROOT_KEY,
+        text: '/',
+        parents: [],
+        metadata: EditorNodeMetadata(),
+      )
+        ..isLastChild = true
+        ..cacheChildIndices();
 
   bool checked;
   String text;
@@ -36,7 +46,6 @@ final class EditorNode extends IndexedTreeNode<void> {
 
     final child = EditorNode(
       parents: parents,
-      children: [],
       checked: false,
       metadata: EditorNodeMetadata(),
     );
