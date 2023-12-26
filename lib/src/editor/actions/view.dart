@@ -47,6 +47,7 @@ final class EditorActionsState extends State<EditorActionsView> {
           // ),
           Card(
             child: ExpansionTile(
+              leading: const Icon(Icons.edit),
               title: const Text('Edit'),
               subtitle: const Text('Edit the text'),
               controlAffinity: ListTileControlAffinity.trailing,
@@ -61,10 +62,34 @@ final class EditorActionsState extends State<EditorActionsView> {
               ],
             ),
           ),
-          ListTile(
-            leading: const Icon(Icons.table_chart),
-            title: const Text('Build a Frame'),
-            onTap: () {},
+          Card(
+            child: ExpansionTile(
+              leading: const Icon(Icons.table_chart),
+              title: const Text('Build a Frame'),
+              subtitle: const Text('Build a Frame'),
+              trailing: const Icon(Icons.send),
+              controlAffinity: ListTileControlAffinity.trailing,
+              children: <Widget>[
+                ListTile(
+                  title: TextField(),
+                  trailing: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {},
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.send),
+                        onPressed: () {},
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
           ListTile(
             leading: const Icon(Icons.publish),
