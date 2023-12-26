@@ -36,7 +36,7 @@ final class EditorState extends State<EditorView> {
           IconButton(
             icon: const Icon(Icons.save),
             tooltip: 'Save',
-            onPressed: controller.save,
+            onPressed: () => controller.save(context),
           ),
           IconButton(
             icon: const Icon(Icons.settings),

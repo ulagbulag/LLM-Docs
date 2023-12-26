@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tree/flutter_tree.dart';
 
@@ -19,9 +22,21 @@ class EditorController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void save() {
-    for (final node in nodes) {
-      print(node.expaned);
+  Future<void> save(BuildContext context) async {
+    final now = DateTime.now();
+    final path = await FileSaver.instance.saveFile(
+      name: 'document-${now.toUtc().toIso8601String()}',
+      bytes: utf8.encode(jsonEncode(nodes.map((e) => e.toJson()).toList())),
+      ext: '.json',
+      mimeType: MimeType.json,
+    );
+
+    if (context.mounted) {
+      final snackBar = SnackBar(
+        content: Text('Saved to $path'),
+        duration: const Duration(seconds: 5),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
   }
 
@@ -38,22 +53,23 @@ class EditorController extends ChangeNotifier {
     );
   }
 
-  void checkNode(bool isChecked, TreeNodeData parent) {
-    parent.checked = isChecked;
-    parent.extra.isChecked = isChecked;
+  void checkNode(bool isChecked, TreeNodeData node) {
+    node.checked = isChecked;
   }
 
-  void collpaseNode(TreeNodeData parent) {
-    parent.expaned = false;
+  void collpaseNode(TreeNodeData node) {
+    node.expaned = false;
   }
 
-  void expandNode(TreeNodeData parent) {
-    parent.expaned = true;
+  void expandNode(TreeNodeData node) {
+    node.expaned = true;
   }
 
-  void focusNode(TreeNodeData parent) {
-    selectedNode = parent.extra;
-    notifyListeners();
+  void focusNode(TreeNodeData node) {
+    if (node is EditorNode) {
+      selectedNode = node;
+      notifyListeners();
+    }
   }
 
   void removeNode(TreeNodeData node, TreeNodeData parent) {
